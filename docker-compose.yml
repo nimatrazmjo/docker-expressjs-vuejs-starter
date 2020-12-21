@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+  expressjs:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: expressjs
+    env_file:
+      - ./.env
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db
+    networks:
+      - front-tier
+      - back-tier
+  vuejs:
+    build:
+      context: .
+      dockerfile: Dockerfile.vuejs
+    container_name: vuejs
+    env_file:
+      - ./.env
+    tty: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - expressjs
+    networks:
+      - front-tier
+      - back-tier
+  db:
+    image: mongo:4.4.2
+    restart: always
+    container_name: db
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - 0.0.0.0:27017:27017
+    networks:
+      - back-tier
+volumes:
+  mongo_data:
+networks:
+  front-tier:
+  back-tier:

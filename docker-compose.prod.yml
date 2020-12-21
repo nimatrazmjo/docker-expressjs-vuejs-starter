@@ -1,0 +1,59 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: api
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+    tty: true
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    networks:
+      - back-tier
+  db:
+    image: mongo:4.4.2
+    restart: always
+    container_name: db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS}
+      - MONGO_INITDB_DATABASE=admin
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - back-tier
+  web:
+    image: nginx:stable-alpine
+    container_name: web
+    tty: true
+    env_file:
+      - ./.env
+    environment:
+      - TZ=Asia/Kabul
+    depends_on:
+      - api
+    networks:
+      - back-tier
+    links:
+      - api
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  mongo_data:
+networks:
+  back-tier:
