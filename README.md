@@ -37,6 +37,7 @@ Contribution are alwasy welcome! Please read the [contribution guidelines](contr
 - Commit your changes `git commit -am 'Add some foo`.
 - Push to the branch `git push origin feature/foo`.
 - Create a new Pull Request.
+- 
 
 ## License
 
